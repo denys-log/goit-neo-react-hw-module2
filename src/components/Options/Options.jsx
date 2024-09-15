@@ -1,15 +1,17 @@
+const GRADES = ['Good', 'Neutral', 'Bad'];
+
 export default function Options({ onClick, totalFeedback, onReset }) {
   return (
     <div>
-      <button type="button" onClick={() => onClick('good')}>
-        Good
-      </button>
-      <button type="button" onClick={() => onClick('neutral')}>
-        Neutral
-      </button>
-      <button type="button" onClick={() => onClick('bad')}>
-        Bad
-      </button>
+      {GRADES.map(grade => (
+        <button
+          key={grade}
+          type="button"
+          onClick={() => onClick(grade.toLocaleLowerCase())}
+        >
+          {grade}
+        </button>
+      ))}
       {totalFeedback > 0 ? (
         <button type="button" onClick={onReset}>
           Reset
