@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import Description from './components/Description/Description';
+import Options from './components/Options/Options';
+import Feedback from './components/Feedback/Feedback';
+import Notification from './components/Notification/Notification';
+import './App.css';
+
+const GRADE = {
+  good: 0,
+  neutral: 0,
+  bad: 0,
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [grade, setGrade] = useState(() => {
+    const savedGrade = window.localStorage.getItem('grade');
+    if (savedGrade !== null) {
+      return JSON.parse(savedGrade);
+    }
+    return GRADE;
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem('grade', JSON.stringify(grade));
+  }, [grade]);
+
+  const updateFeedback = feedbackType => {
+    setGrade(prevState => ({
+      ...prevState,
+      [feedbackType]: prevState[feedbackType] + 1,
+    }));
+  };
+
+  const resetFeedback = () => setGrade(GRADE);
+
+  const totalFeedback = grade.good + grade.neutral + grade.bad;
+  const positiveFeedback = Math.round((grade.good / totalFeedback) * 100);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Description />
+      <Options
+        onClick={updateFeedback}
+        totalFeedback={totalFeedback}
+        onReset={resetFeedback}
+      />
+      {totalFeedback > 0 ? (
+        <Feedback {...grade} positiveFeedback={positiveFeedback} />
+      ) : (
+        <Notification />
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
